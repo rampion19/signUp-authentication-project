@@ -1,10 +1,11 @@
 import { useState, useRef, useContext } from 'react';
+import { useHistory } from 'react-router-dom';
 import AuthContext from '../../Store/AuthContext';
 
 import classes from './AuthForm.module.css';
 
 const AuthForm = () => {
-
+  const history = useHistory();
   const emailInputRef = useRef();
   const passwordInputRef = useRef();
 
@@ -30,36 +31,37 @@ const AuthForm = () => {
     else {
       url = 'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyDlUoLonh8jMlZG_rKIcWwwNNZUomjYShU'
     }
-  fetch(url, {
-    method: "POST",
-    body: JSON.stringify({
-      email: enteredEmail,
-      password: enteredPassword,
-      returnSecureToken: true
-    }),
-    headers: {
-      "Content-type": "application/json"
-    }
-  }).then(res => {
-    setIsLoading(false)
-    if (res.ok) {
-      return res.json();
-    } else {
-      return res.json().then(data => {
-        let errorMessage = "Authentication failed!"
-        // if (data && data.error && data.error.message) {
-        //   errorMessage = data.error.message
-        // }
-        throw new Error(errorMessage);
-      });
-    }
-  })
-    .then((data) => {
-      authCtx.login(data.idToken)
+    fetch(url, {
+      method: "POST",
+      body: JSON.stringify({
+        email: enteredEmail,
+        password: enteredPassword,
+        returnSecureToken: true
+      }),
+      headers: {
+        "Content-type": "application/json"
+      }
+    }).then(res => {
+      setIsLoading(false)
+      if (res.ok) {
+        return res.json();
+      } else {
+        return res.json().then(data => {
+          let errorMessage = "Authentication failed!"
+          // if (data && data.error && data.error.message) {
+          //   errorMessage = data.error.message
+          // }
+          throw new Error(errorMessage);
+        });
+      }
     })
-    .catch((err) => {
-      alert(err.message)
-    })
+      .then((data) => {
+        authCtx.login(data.idToken)
+        history.replace('/');
+      })
+      .catch((err) => {
+        alert(err.message)
+      })
   }
 
   return (
